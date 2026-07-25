@@ -9,9 +9,9 @@
  * human reviewer or UI widget can re-read it without recomputing.
  */
 
-import { riskService } from "../services/risk.service";
-import { NotFoundError } from "../domain/errors";
-import { readResource } from "./resource-runtime";
+import { riskService } from "../services/risk.service.js";
+import { NotFoundError } from "../domain/errors.js";
+import { readResource } from "./resource-runtime.js";
 
 export const RISK_RESOURCE_URI_TEMPLATE = "risk://{caseId}";
 

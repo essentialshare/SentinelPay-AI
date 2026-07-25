@@ -3,9 +3,9 @@
  * Source: Technical Specification §5.3
  */
 
-import { parseVerifyVendorInput } from "../domain/schemas";
-import { vendorService } from "../services/vendor.service";
-import { runTool, type ToolInvocationContext } from "./tool-runtime";
+import { parseVerifyVendorInput } from "../domain/schemas.js";
+import { vendorService } from "../services/vendor.service.js";
+import { runTool, type ToolInvocationContext } from "./tool-runtime.js";
 
 export const VERIFY_VENDOR_TOOL_NAME = "verifyVendor" as const;
 

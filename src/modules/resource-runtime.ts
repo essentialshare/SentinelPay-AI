@@ -9,9 +9,9 @@
  * `tool-runtime.ts` header — the same caveat applies here.
  */
 
-import { assertId, assertNonEmptyString } from "../domain/schemas";
-import { InvalidInputError, toErrorResponse } from "../domain/errors";
-import { logger } from "../observability/logger";
+import { assertId, assertNonEmptyString } from "../domain/schemas.js";
+import { InvalidInputError, toErrorResponse } from "../domain/errors.js";
+import { logger } from "../observability/logger.js";
 
 /**
  * Default URI-parameter validator: the canonical uppercase ID pattern used

@@ -9,16 +9,18 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "nitrostack-cli dev",
+    "dev:server-only": "tsx watch src/index.ts",
+    "build": "nitrostack-cli build",
+    "start": "nitrostack-cli start",
+    "install:all": "nitrostack-cli install",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
     "test": "node scripts/run-tests.mjs",
     "test:unit": "node --import tsx --test tests/unit/**/*.test.ts",
     "test:integration": "node --import tsx --test tests/integration/**/*.test.ts",
     "test:e2e": "node --import tsx --test tests/e2e/**/*.test.ts",
     "test:security": "node --import tsx --test tests/security/**/*.test.ts",
-    "lint": "tsc -p tsconfig.json --noEmit"
+    "lint": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
     "@nitrostack/core": "^1.0.0",
@@ -26,6 +28,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@nitrostack/cli": "^1",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",

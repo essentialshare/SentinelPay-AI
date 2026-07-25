@@ -15,7 +15,7 @@
  */
 
 import { timingSafeEqual } from "node:crypto";
-import { UnauthorizedError } from "../domain/errors";
+import { UnauthorizedError } from "../domain/errors.js";
 
 export interface AuthContext {
   principalId: string;

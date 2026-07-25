@@ -9,8 +9,8 @@
  * wrappers around it without changing their call sites in *.tools.ts.
  */
 
-import { InvalidInputError } from "./errors";
-import type { Evidence, EvidenceSeverity, EvidenceType } from "./models";
+import { InvalidInputError } from "./errors.js";
+import type { Evidence, EvidenceSeverity, EvidenceType } from "./models.js";
 
 // ---------------------------------------------------------------------------
 // Primitive validators

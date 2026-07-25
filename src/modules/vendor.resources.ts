@@ -3,8 +3,8 @@
  * Source: Technical Specification §6
  */
 
-import { vendorService } from "../services/vendor.service";
-import { readResource } from "./resource-runtime";
+import { vendorService } from "../services/vendor.service.js";
+import { readResource } from "./resource-runtime.js";
 
 export const COUNTERPARTY_RESOURCE_URI_TEMPLATE = "counterparty://{vendorId}";
 

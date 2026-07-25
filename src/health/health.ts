@@ -9,7 +9,7 @@
  * framework-agnostic check functions.
  */
 
-import { fixtureRepository } from "../services/fixtures";
+import { fixtureRepository } from "../services/fixtures.js";
 
 export interface HealthStatus {
   status: "ok" | "error";

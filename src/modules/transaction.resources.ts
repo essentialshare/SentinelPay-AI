@@ -3,8 +3,8 @@
  * Source: Technical Specification §6
  */
 
-import { transactionService } from "../services/transaction.service";
-import { readResource } from "./resource-runtime";
+import { transactionService } from "../services/transaction.service.js";
+import { readResource } from "./resource-runtime.js";
 
 export const TRANSACTION_RESOURCE_URI_TEMPLATE = "transaction://{transactionId}";
 

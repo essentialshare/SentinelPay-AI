@@ -19,13 +19,13 @@
  * once that exact call is confirmed — see `src/app.module.ts`.
  */
 
-import { authenticate } from "../security/auth";
-import { assertToolAuthorized } from "../security/authorization";
-import { validateRequestEnvelope } from "../security/input-validation";
-import { auditService } from "../services/audit.service";
-import { metrics } from "../observability/metrics";
-import { logger } from "../observability/logger";
-import { toErrorResponse } from "../domain/errors";
+import { authenticate } from "../security/auth.js";
+import { assertToolAuthorized } from "../security/authorization.js";
+import { validateRequestEnvelope } from "../security/input-validation.js";
+import { auditService } from "../services/audit.service.js";
+import { metrics } from "../observability/metrics.js";
+import { logger } from "../observability/logger.js";
+import { toErrorResponse } from "../domain/errors.js";
 
 export interface ToolInvocationContext {
   /** Threaded across user request → agent → tool calls → risk → approval (§13.4). */

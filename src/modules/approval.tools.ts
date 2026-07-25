@@ -12,11 +12,11 @@
  * from this tool, and is never triggered by agent or document content.
  */
 
-import type { ApprovalCase } from "../domain/models";
-import { parsePrepareApprovalInput } from "../domain/schemas";
-import { auditService } from "../services/audit.service";
-import { runTool, type ToolInvocationContext } from "./tool-runtime";
-import { BoundedMap } from "../util/bounded-map";
+import type { ApprovalCase } from "../domain/models.js";
+import { parsePrepareApprovalInput } from "../domain/schemas.js";
+import { auditService } from "../services/audit.service.js";
+import { runTool, type ToolInvocationContext } from "./tool-runtime.js";
+import { BoundedMap } from "../util/bounded-map.js";
 
 /** Caps in-memory prepared-approval history (see bounded-map.ts). */
 const MAX_TRACKED_CASES = 10_000;

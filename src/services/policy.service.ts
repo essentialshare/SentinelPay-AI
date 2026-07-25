@@ -12,11 +12,11 @@
  * returns a structured PolicyResult for the risk engine / approval layer.
  */
 
-import type { Evidence, Policy, PolicyResult, PolicyViolation } from "../domain/models";
-import { PolicyError } from "../domain/errors";
-import { fixtureRepository } from "./fixtures";
-import { hasBlockingEvidenceGap } from "../domain/evidence";
-import { logger } from "../observability/logger";
+import type { Evidence, Policy, PolicyResult, PolicyViolation } from "../domain/models.js";
+import { PolicyError } from "../domain/errors.js";
+import { fixtureRepository } from "./fixtures.js";
+import { hasBlockingEvidenceGap } from "../domain/evidence.js";
+import { logger } from "../observability/logger.js";
 
 // §17.1 — env-tunable, defaults to the fixture-configured value (locked spec
 // default 500000 / ₹5,00,000, §5.6) when unset. Mirrors the override pattern

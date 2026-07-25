@@ -22,8 +22,8 @@ import type {
   PaymentHistoryRecord,
   Policy,
   Transaction,
-} from "../domain/models";
-import { InternalError } from "../domain/errors";
+} from "../domain/models.js";
+import { InternalError } from "../domain/errors.js";
 
 // This package is ESM-only ("type": "module" in package.json, module:
 // ESNext in tsconfig), so `import.meta.url` is always available here —

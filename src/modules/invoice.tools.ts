@@ -3,9 +3,9 @@
  * Source: Technical Specification §5.4
  */
 
-import { parseAnalyzeInvoiceInput } from "../domain/schemas";
-import { invoiceService } from "../services/invoice.service";
-import { runTool, type ToolInvocationContext } from "./tool-runtime";
+import { parseAnalyzeInvoiceInput } from "../domain/schemas.js";
+import { invoiceService } from "../services/invoice.service.js";
+import { runTool, type ToolInvocationContext } from "./tool-runtime.js";
 
 export const ANALYZE_INVOICE_TOOL_NAME = "analyzeInvoice" as const;
 

@@ -13,11 +13,11 @@
  */
 
 import { randomUUID } from "node:crypto";
-import type { ApprovalCase, RiskResult } from "../domain/models";
-import type { AuditEvent, AuditEventType, InvestigationAuditSummary } from "../observability/events";
-import { logger } from "../observability/logger";
-import { metrics } from "../observability/metrics";
-import { BoundedMap } from "../util/bounded-map";
+import type { ApprovalCase, RiskResult } from "../domain/models.js";
+import type { AuditEvent, AuditEventType, InvestigationAuditSummary } from "../observability/events.js";
+import { logger } from "../observability/logger.js";
+import { metrics } from "../observability/metrics.js";
+import { BoundedMap } from "../util/bounded-map.js";
 
 /** Caps in-memory audit history to the most recently active cases (see bounded-map.ts). */
 const MAX_TRACKED_CASES = 10_000;

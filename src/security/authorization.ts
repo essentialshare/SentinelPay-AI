@@ -9,7 +9,7 @@
  * granted even by a bug, because there is no such value to grant.
  */
 
-import { ForbiddenError } from "../domain/errors";
+import { ForbiddenError } from "../domain/errors.js";
 
 export type Capability =
   | "READ_TRANSACTION"

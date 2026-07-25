@@ -7,10 +7,10 @@
  * be presented as a validated probability of fraud.
  */
 
-import { parseRiskIndicatorsInput } from "../domain/schemas";
-import { riskService } from "../services/risk.service";
-import { auditService } from "../services/audit.service";
-import { runTool, type ToolInvocationContext } from "./tool-runtime";
+import { parseRiskIndicatorsInput } from "../domain/schemas.js";
+import { riskService } from "../services/risk.service.js";
+import { auditService } from "../services/audit.service.js";
+import { runTool, type ToolInvocationContext } from "./tool-runtime.js";
 
 export const CALCULATE_RISK_TOOL_NAME = "calculateRisk" as const;
 

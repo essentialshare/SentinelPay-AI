@@ -3,9 +3,9 @@
  * Source: Technical Specification §5.2
  */
 
-import { parseGetTransactionInput } from "../domain/schemas";
-import { transactionService } from "../services/transaction.service";
-import { runTool, type ToolInvocationContext } from "./tool-runtime";
+import { parseGetTransactionInput } from "../domain/schemas.js";
+import { transactionService } from "../services/transaction.service.js";
+import { runTool, type ToolInvocationContext } from "./tool-runtime.js";
 
 export const GET_TRANSACTION_TOOL_NAME = "getTransaction" as const;
 

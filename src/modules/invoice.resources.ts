@@ -3,8 +3,8 @@
  * Source: Technical Specification §6
  */
 
-import { invoiceService } from "../services/invoice.service";
-import { readResource } from "./resource-runtime";
+import { invoiceService } from "../services/invoice.service.js";
+import { readResource } from "./resource-runtime.js";
 
 export const INVOICE_RESOURCE_URI_TEMPLATE = "invoice://{invoiceId}";
 

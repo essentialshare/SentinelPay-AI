@@ -8,8 +8,8 @@
  * vendor's payment history, mirroring `getPaymentHistory`.
  */
 
-import { historyService } from "../services/history.service";
-import { readResource } from "./resource-runtime";
+import { historyService } from "../services/history.service.js";
+import { readResource } from "./resource-runtime.js";
 
 export const HISTORY_RESOURCE_URI_TEMPLATE = "history://{vendorId}";
 

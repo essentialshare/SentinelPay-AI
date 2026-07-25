@@ -9,10 +9,10 @@
  * append internally (`investigationService`, `auditService`).
  */
 
-import { investigationService } from "../services/investigation.service";
-import { auditService } from "../services/audit.service";
-import { NotFoundError } from "../domain/errors";
-import { readResource } from "./resource-runtime";
+import { investigationService } from "../services/investigation.service.js";
+import { auditService } from "../services/audit.service.js";
+import { NotFoundError } from "../domain/errors.js";
+import { readResource } from "./resource-runtime.js";
 
 export const INVESTIGATION_RESOURCE_URI_TEMPLATE = "investigation://{caseId}";
 export const AUDIT_RESOURCE_URI_TEMPLATE = "audit://{caseId}";

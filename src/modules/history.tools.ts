@@ -3,9 +3,9 @@
  * Source: Technical Specification §5.5
  */
 
-import { parseGetPaymentHistoryInput } from "../domain/schemas";
-import { historyService } from "../services/history.service";
-import { runTool, type ToolInvocationContext } from "./tool-runtime";
+import { parseGetPaymentHistoryInput } from "../domain/schemas.js";
+import { historyService } from "../services/history.service.js";
+import { runTool, type ToolInvocationContext } from "./tool-runtime.js";
 
 export const GET_PAYMENT_HISTORY_TOOL_NAME = "getPaymentHistory" as const;
 

@@ -9,10 +9,10 @@
  * getPaymentHistory) — and never executes an adverse financial action.
  */
 
-import { parseEvaluatePolicyInput } from "../domain/schemas";
-import { policyService } from "../services/policy.service";
-import { auditService } from "../services/audit.service";
-import { runTool, type ToolInvocationContext } from "./tool-runtime";
+import { parseEvaluatePolicyInput } from "../domain/schemas.js";
+import { policyService } from "../services/policy.service.js";
+import { auditService } from "../services/audit.service.js";
+import { runTool, type ToolInvocationContext } from "./tool-runtime.js";
 
 export const EVALUATE_POLICY_TOOL_NAME = "evaluatePolicy" as const;
 

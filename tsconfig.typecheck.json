@@ -5,10 +5,9 @@
     "moduleResolution": "Bundler",
     "lib": ["ES2022", "DOM"],
     "jsx": "react-jsx",
-    "outDir": "dist",
-    "rootDir": "./src",
+    "noEmit": true,
     "declaration": false,
-    "sourceMap": true,
+    "sourceMap": false,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
@@ -20,6 +19,6 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": false
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist", "src/widgets"]
 }

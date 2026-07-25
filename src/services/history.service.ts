@@ -9,10 +9,10 @@
  * are derived from.
  */
 
-import type { PaymentHistoryStats } from "../domain/models";
-import { IncompleteEvidenceError } from "../domain/errors";
-import { fixtureRepository } from "./fixtures";
-import { logger } from "../observability/logger";
+import type { PaymentHistoryStats } from "../domain/models.js";
+import { IncompleteEvidenceError } from "../domain/errors.js";
+import { fixtureRepository } from "./fixtures.js";
+import { logger } from "../observability/logger.js";
 
 export class HistoryService {
   /**

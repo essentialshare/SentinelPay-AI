@@ -7,10 +7,10 @@
  * only reports the fact; policy/risk layers decide what it means.
  */
 
-import type { Invoice } from "../domain/models";
-import { NotFoundError } from "../domain/errors";
-import { fixtureRepository } from "./fixtures";
-import { logger } from "../observability/logger";
+import type { Invoice } from "../domain/models.js";
+import { NotFoundError } from "../domain/errors.js";
+import { fixtureRepository } from "./fixtures.js";
+import { logger } from "../observability/logger.js";
 
 export interface AnalyzeInvoiceResult extends Invoice {
   /** §5.4 output field — fixed to VALID_FIXTURE for this deterministic MVP dataset. */

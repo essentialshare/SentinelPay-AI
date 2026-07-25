@@ -8,8 +8,8 @@
  * path here: the agent can read policy, never modify it (§12.2, §21.2).
  */
 
-import { fixtureRepository } from "../services/fixtures";
-import { assertSlugId, readResource } from "./resource-runtime";
+import { fixtureRepository } from "../services/fixtures.js";
+import { assertSlugId, readResource } from "./resource-runtime.js";
 
 export const POLICY_RESOURCE_URI_TEMPLATE = "policy://{policyId}";
 

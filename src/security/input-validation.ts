@@ -11,7 +11,7 @@
  * `domain/schemas.ts` and the service layer.
  */
 
-import { InvalidInputError } from "../domain/errors";
+import { InvalidInputError } from "../domain/errors.js";
 
 /** Defensive ceiling on raw request size (bytes, as JSON-stringified). */
 const MAX_PAYLOAD_BYTES = 32_000;

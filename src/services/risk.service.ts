@@ -19,10 +19,10 @@
  * present it as validated financial risk.
  */
 
-import type { RiskFactor, RiskIndicators, RiskLevel, RiskResult } from "../domain/models";
-import { RiskEngineError } from "../domain/errors";
-import { logger } from "../observability/logger";
-import { BoundedMap } from "../util/bounded-map";
+import type { RiskFactor, RiskIndicators, RiskLevel, RiskResult } from "../domain/models.js";
+import { RiskEngineError } from "../domain/errors.js";
+import { logger } from "../observability/logger.js";
+import { BoundedMap } from "../util/bounded-map.js";
 
 /** Caps in-memory risk-result history to the most recently active cases (see bounded-map.ts). */
 const MAX_TRACKED_CASES = 10_000;

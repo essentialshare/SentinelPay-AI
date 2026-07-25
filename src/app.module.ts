@@ -13,21 +13,21 @@
  * rule to never guess NitroStack syntax.
  */
 
-import { getTransactionTool } from "./modules/transaction.tools";
-import { transactionResource } from "./modules/transaction.resources";
-import { verifyVendorTool } from "./modules/vendor.tools";
-import { counterpartyResource } from "./modules/vendor.resources";
-import { analyzeInvoiceTool } from "./modules/invoice.tools";
-import { invoiceResource } from "./modules/invoice.resources";
-import { getPaymentHistoryTool } from "./modules/history.tools";
-import { historyResource } from "./modules/history.resources";
-import { evaluatePolicyTool } from "./modules/policy.tools";
-import { policyResource } from "./modules/policy.resources";
-import { calculateRiskTool } from "./modules/risk.tools";
-import { riskResource } from "./modules/risk.resources";
-import { prepareApprovalTool } from "./modules/approval.tools";
-import { auditResource, investigationResource } from "./modules/investigation.resources";
-import { investigationPrompts } from "./modules/investigation.prompts";
+import { getTransactionTool } from "./modules/transaction.tools.js";
+import { transactionResource } from "./modules/transaction.resources.js";
+import { verifyVendorTool } from "./modules/vendor.tools.js";
+import { counterpartyResource } from "./modules/vendor.resources.js";
+import { analyzeInvoiceTool } from "./modules/invoice.tools.js";
+import { invoiceResource } from "./modules/invoice.resources.js";
+import { getPaymentHistoryTool } from "./modules/history.tools.js";
+import { historyResource } from "./modules/history.resources.js";
+import { evaluatePolicyTool } from "./modules/policy.tools.js";
+import { policyResource } from "./modules/policy.resources.js";
+import { calculateRiskTool } from "./modules/risk.tools.js";
+import { riskResource } from "./modules/risk.resources.js";
+import { prepareApprovalTool } from "./modules/approval.tools.js";
+import { auditResource, investigationResource } from "./modules/investigation.resources.js";
+import { investigationPrompts } from "./modules/investigation.prompts.js";
 
 /**
  * The exact seven documented MCP tools (§4, §11.2, §25.2). There is

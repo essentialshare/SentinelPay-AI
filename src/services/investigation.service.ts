@@ -24,25 +24,25 @@ import type {
   InvestigationCase,
   PolicyResult,
   RiskResult,
-} from "../domain/models";
+} from "../domain/models.js";
 import {
   evaluateAmountAnomaly,
   evaluateBeneficiaryMatch,
   evaluateDuplicateInvoice,
   evaluateInvoiceTransactionConflict,
   hasBlockingEvidenceGap,
-} from "../domain/evidence";
-import { IncompleteEvidenceError, NotFoundError } from "../domain/errors";
-import { transactionService } from "./transaction.service";
-import { vendorService } from "./vendor.service";
-import { invoiceService } from "./invoice.service";
-import { historyService } from "./history.service";
-import { policyService } from "./policy.service";
-import { riskService } from "./risk.service";
-import { auditService } from "./audit.service";
-import { newCaseId } from "../observability/tracing";
-import { logger } from "../observability/logger";
-import { BoundedMap } from "../util/bounded-map";
+} from "../domain/evidence.js";
+import { IncompleteEvidenceError, NotFoundError } from "../domain/errors.js";
+import { transactionService } from "./transaction.service.js";
+import { vendorService } from "./vendor.service.js";
+import { invoiceService } from "./invoice.service.js";
+import { historyService } from "./history.service.js";
+import { policyService } from "./policy.service.js";
+import { riskService } from "./risk.service.js";
+import { auditService } from "./audit.service.js";
+import { newCaseId } from "../observability/tracing.js";
+import { logger } from "../observability/logger.js";
+import { BoundedMap } from "../util/bounded-map.js";
 
 /** Caps in-memory investigation-case history (see bounded-map.ts). */
 const MAX_TRACKED_CASES = 10_000;

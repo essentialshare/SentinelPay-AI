@@ -18,7 +18,7 @@ import type {
   Invoice,
   PaymentHistoryStats,
   Transaction,
-} from "./models";
+} from "./models.js";
 
 function newEvidence(
   caseId: string,
