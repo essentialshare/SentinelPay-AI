@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SentinelPay AI — RiskCard Widget</title>
+<!--
+  SentinelPay AI — RiskCard Widget (HTML/JS port)
+  Source: Technical Specification §3.1 (widgets/RiskCard), Phase 7 (Widgets)
+
+  This is a direct, as-is translation of two React/TSX files into plain
+  HTML + vanilla JS:
+
+    1. index.tsx  -> the presentational RiskCard renderer (LEVEL_COLOR,
+                      FACTOR_LABEL, and the JSX markup/inline styles below
+                      are carried over unchanged, just written as DOM
+                      construction instead of JSX).
+    2. page.tsx   -> the widget "page" wrapper. In the original this pulls
+                      structured tool output from `@nitrostack/widgets` via
+                      `useWidgetSDK().getToolOutput()` and a `useTheme()`
+                      hook. Those hooks are thin React wrappers around
+                      `window.openai` (OpenAI Apps SDK) / `window.__MCP_APP_CONTEXT__`
+                      (MCP Apps spec) — see
+                      src/widgets/node_modules/@nitrostack/widgets/dist/sdk.js.
+                      `isReady()`, `getTheme()`, `getToolOutput()`, and
+                      `extractToolData()` below are a line-for-line port of
+                      that runtime, and `mount()` + the two event listeners
+                      reproduce the reactivity `useWidgetSDK()` gets from
+                      `useOpenAiGlobal()`/`openai:set_globals`. This file
+                      will render for real once loaded inside a host that
+                      injects `window.openai` (or `__MCP_APP_CONTEXT__`)
+                      before this script runs — nothing here is a stand-in
+                      anymore.
+
+  Never renders the score as a certainty ("this transaction is fraud") —
+  always as a labeled prototype heuristic (§22 Claims Boundary).
+-->
+</head>
+<body style="margin:0;">
+
+  <div id="root"></div>
+
+  <script>
+    // ---- from index.tsx ----------------------------------------------
+
+    const LEVEL_COLOR = {
+      LOW: "#1a7f37",
+      MEDIUM: "#9a6700",
+      HIGH: "#cf222e",
+    };
+
+    const FACTOR_LABEL = {
+      beneficiaryMismatch: "Beneficiary mismatch",
+      amountAnomaly: "Amount anomaly",
+      policyViolation: "Policy violation",
+    };
+
+    function RiskCard({ caseId, riskScore, riskLevel, factors }) {
+      const color = LEVEL_COLOR[riskLevel];
+
+      const container = document.createElement("div");
+      container.setAttribute("data-testid", "risk-card");
+      Object.assign(container.style, {
+        border: `1px solid ${color}`,
+        borderRadius: "8px",
+        padding: "16px",
+        maxWidth: "360px",
+        fontFamily: "system-ui, sans-serif",
+      });
+
+      const caseIdEl = document.createElement("div");
+      Object.assign(caseIdEl.style, {
+        fontSize: "12px",
+        color: "#57606a",
+        marginBottom: "4px",
+      });
+      caseIdEl.textContent = caseId;
+      container.appendChild(caseIdEl);
+
+      const scoreRow = document.createElement("div");
+      Object.assign(scoreRow.style, {
+        display: "flex",
+        alignItems: "baseline",
+        gap: "8px",
+        marginBottom: "8px",
+      });
+
+      const scoreEl = document.createElement("span");
+      Object.assign(scoreEl.style, {
+        fontSize: "32px",
+        fontWeight: "700",
+        color: color,
+      });
+      scoreEl.textContent = riskScore;
+      scoreRow.appendChild(scoreEl);
+
+      const levelEl = document.createElement("span");
+      Object.assign(levelEl.style, {
+        fontSize: "14px",
+        fontWeight: "600",
+        color: color,
+        textTransform: "uppercase",
+      });
+      levelEl.textContent = riskLevel;
+      scoreRow.appendChild(levelEl);
+
+      container.appendChild(scoreRow);
+
+      const disclaimer = document.createElement("div");
+      Object.assign(disclaimer.style, {
+        fontSize: "11px",
+        color: "#57606a",
+        marginBottom: "12px",
+      });
+      disclaimer.textContent = "Prototype heuristic — not a validated fraud probability.";
+      container.appendChild(disclaimer);
+
+      const list = document.createElement("ul");
+      Object.assign(list.style, {
+        listStyle: "none",
+        padding: "0",
+        margin: "0",
+        fontSize: "13px",
+      });
+
+      factors.forEach((factor) => {
+        const li = document.createElement("li");
+        Object.assign(li.style, {
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "4px 0",
+          opacity: factor.triggered ? "1" : "0.45",
+        });
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = FACTOR_LABEL[factor.name];
+
+        const weightSpan = document.createElement("span");
+        weightSpan.textContent = factor.triggered ? `+${factor.weight}` : "—";
+
+        li.appendChild(nameSpan);
+        li.appendChild(weightSpan);
+        list.appendChild(li);
+      });
+
+      container.appendChild(list);
+
+      return container;
+    }
+
+    // ---- from page.tsx --------------------------------------------------
+    // This is now a direct port of the real @nitrostack/widgets runtime
+    // (src/widgets/node_modules/@nitrostack/widgets/dist/sdk.js), not a
+    // stand-in. Both the OpenAI Apps SDK (window.openai) and the MCP Apps
+    // spec (window.__MCP_APP_CONTEXT__) inject `window.openai` into the
+    // page before this script runs, so reading it directly here is
+    // equivalent to what `getWidgetSDK()` does.
+
+    function isReady() {
+      return typeof window !== "undefined" &&
+        ("openai" in window || "__MCP_APP_CONTEXT__" in window);
+    }
+
+    function getTheme() {
+      // mirrors WidgetSDK.getTheme()
+      if (!isReady()) return "light";
+      return window.openai.theme;
+    }
+
+    function extractToolData(output) {
+      // mirrors WidgetSDK.extractToolData()
+      if (!output) return null;
+
+      // 1. structuredContent (OpenAI / NitroStack default)
+      if (output.structuredContent) {
+        return output.structuredContent;
+      }
+
+      // 2. standard MCP content/contents array
+      const contents = output.content || output.contents;
+      if (Array.isArray(contents)) {
+        const jsonContent = contents.find(
+          (c) => c && typeof c === "object" &&
+            (c.mimeType === "application/json" || c.type === "json")
+        );
+        if (jsonContent) {
+          try {
+            return typeof jsonContent.text === "string"
+              ? JSON.parse(jsonContent.text)
+              : jsonContent.text;
+          } catch {
+            // fall through
+          }
+        }
+
+        const textContent = contents.find(
+          (c) => c && typeof c === "object" &&
+            (c.mimeType === "text/plain" || c.type === "text")
+        );
+        if (textContent && typeof textContent.text === "string") {
+          try {
+            const trimmed = textContent.text.trim();
+            if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+              return JSON.parse(textContent.text);
+            }
+            return textContent.text;
+          } catch {
+            return textContent.text;
+          }
+        }
+      }
+
+      // 3. fallback: raw output
+      return output;
+    }
+
+    function getToolOutput() {
+      // mirrors WidgetSDK.getToolOutput()
+      if (!isReady()) return null;
+      const rawOutput = window.openai.toolOutput;
+      if (!rawOutput) return null;
+      return extractToolData(rawOutput);
+    }
+
+    function renderRiskCardPage() {
+      const theme = getTheme();
+      const data = getToolOutput();
+      const wrapper = document.createElement("div");
+
+      if (!data || !Array.isArray(data.factors)) {
+        Object.assign(wrapper.style, {
+          padding: "24px",
+          textAlign: "center",
+          fontFamily: "system-ui, sans-serif",
+          color: theme === "dark" ? "#fff" : "#000",
+        });
+        wrapper.textContent = "Loading risk assessment…";
+        return wrapper;
+      }
+
+      wrapper.style.padding = "16px";
+      wrapper.appendChild(
+        RiskCard({
+          caseId: data.caseId,
+          riskScore: data.riskScore,
+          riskLevel: data.riskLevel,
+          factors: data.factors,
+        })
+      );
+
+      return wrapper;
+    }
+
+    // useWidgetSDK() re-renders on 'openai:ready' and on
+    // 'openai:set_globals' (SET_GLOBALS_EVENT_TYPE in types.js) whenever
+    // theme/toolOutput/etc. change. Reproduce that here since there's no
+    // React re-render cycle to rely on.
+    const SET_GLOBALS_EVENT_TYPE = "openai:set_globals";
+
+    function mount() {
+      const root = document.getElementById("root");
+      root.replaceChildren(renderRiskCardPage());
+    }
+
+    mount();
+    window.addEventListener("openai:ready", mount);
+    window.addEventListener(SET_GLOBALS_EVENT_TYPE, mount, { passive: true });
+  </script>
+</body>
+</html>
