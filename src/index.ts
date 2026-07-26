@@ -202,7 +202,18 @@ function toSdkTool(descriptor: (typeof tools)[number]): Tool {
   // text block with no structuredContent — which is what was causing
   // RiskCard's `factors` to be undefined on real (non-preview) tool calls.
   if (widgetConfig) {
-    tool.setComponent(createComponentFromNextRoute(widgetConfig.route));
+    // `createComponentFromNextRoute` resolves the exported widget HTML
+    // with `path.resolve(projectDir, 'out', routePath, ...)`. Node's
+    // path.resolve() treats any segment starting with '/' as an absolute
+    // path and discards everything before it — so passing our route as
+    // "/risk-card" (leading slash, as used in `widget: { route }` above
+    // and any dev-mode URL) collapses the lookup to "/risk-card.html" at
+    // the filesystem root instead of "<projectDir>/out/risk-card.html",
+    // which is exactly what produced the "Exported HTML for route
+    // '/risk-card' not found" crash at startup. Strip the leading slash
+    // only for this call; `widget: { route }` above keeps the original
+    // value since other consumers may expect the URL-style path.
+    tool.setComponent(createComponentFromNextRoute(widgetConfig.route.replace(/^\//, "")));
   }
 
   return tool;
