@@ -71,13 +71,12 @@ class Logger {
     };
 
     const serialized = JSON.stringify(line);
-    if (level === "error") {
-      // eslint-disable-next-line no-console
-      console.error(serialized);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(serialized);
-    }
+    // stdout is the exclusive MCP JSON-RPC channel under the stdio transport
+    // (see @modelcontextprotocol/sdk/shared/stdio.js — every stdout line is
+    // JSON.parse'd as a protocol message). ALL log output, at every level,
+    // must go to stderr instead, or it corrupts the message stream.
+    // eslint-disable-next-line no-console
+    console.error(serialized);
   }
 
   debug(event: string, fields?: LogFields) {
