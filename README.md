@@ -1,199 +1,430 @@
-# SentinelPay AI
+# SentinelPay-AI: Investigate. Verify. Explain. Approve.
 
-**Investigate. Verify. Explain. Approve.**
+> SentinelPay AI is an intelligent payment investigation assistant built to help financial teams detect fraud, reduce risk, and make faster, more informed paym…
 
-SentinelPay AI is a controlled financial decision firewall that sits between
-an AI agent and consequential financial actions. It receives a request like
-*"Investigate transaction TX-827 and tell me whether it should be
-released,"* gathers evidence through narrowly-scoped, read-only MCP tools,
-runs that evidence through deterministic policy and risk engines, and
-prepares a human-review request — it never executes a payment, approves
-itself, or modifies vendor/policy records.
+![Model Context Protocol](https://img.shields.io/badge/Model%20Context%20Protocol-MCP-blue) ![Built with Nitrostack](https://img.shields.io/badge/Built%20with-Nitrostack-0A66FF) ![Status](https://img.shields.io/badge/status-live-brightgreen)
 
-> **AI may investigate. AI may reason. AI may recommend. AI may explain.**
-> **AI may NOT hold the keys to the money.**
+**SentinelPay-AI: Investigate. Verify. Explain. Approve.** is an [MCP (Model Context Protocol)](https://nitrostack.ai) server that extends AI assistants — like Claude, Cursor, and any MCP-compatible client — with new, real-world capabilities. It is built and deployed on [Nitrostack](https://nitrostack.ai), the fastest way to build, deploy, and share MCP apps.
 
-This is an MVP prototype built against deterministic local fixtures. It does
-not move real money and does not claim to detect legally-established fraud.
+## Table of Contents
 
-## Contents
+- [Overview](#overview)
+- [What is MCP?](#what-is-mcp)
+- [Features](#features)
+- [Live Demo](#live-demo)
+- [Getting Started](#getting-started)
+- [Connect to an MCP Client](#connect-to-an-mcp-client)
+- [Deploy Your Own MCP App](#deploy-your-own-mcp-app)
+- [Explore More MCP Apps](#explore-more-mcp-apps)
+- [FAQ](#faq)
+- [Keywords](#keywords)
+- [License](#license)
 
-- [Architecture](#architecture)
-- [Getting started](#getting-started)
-- [Environment variables](#environment-variables)
-- [Project structure](#project-structure)
-- [MCP surface](#mcp-surface)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Safety boundaries](#safety-boundaries)
+## Overview
 
-## Architecture
+SentinelPay AI is an intelligent payment investigation assistant built to help financial teams detect fraud, reduce risk, and make faster, more informed payment decisions. Instead of manually reviewing multiple systems and documents, users can interact with the platform using natural language to retrieve transaction details, verify vendors, analyze invoices, review payment history, evaluate policy compliance, assess financial risk, and generate approval recommendations. By combining structured financial data with AI-powered reasoning through the Model Context Protocol (MCP), SentinelPay AI simplifies complex investigation workflows, improves transparency, and helps organizations make consistent, explainable decisions while saving time and reducing operational overhead.
 
-Seven MCP tools carry out a strict evidence-first pipeline:
+## What is MCP?
 
-```
-getTransaction → verifyVendor → analyzeInvoice → getPaymentHistory
-      → evaluatePolicy → calculateRisk → prepareApproval
-```
+The **Model Context Protocol (MCP)** is an open standard that lets AI assistants securely connect to external tools, data sources, and services. Instead of being limited to what it was trained on, an AI model can call **MCP servers** to fetch live data, run actions, and integrate with real systems.
 
-Missing or conflicting evidence is never silently treated as safe — it is
-recorded as its own evidence type (`INCOMPLETE_EVIDENCE`, `DATA_CONFLICT`)
-and forces a `HOLD` recommendation regardless of the numeric risk score.
+This project is one such MCP server. Learn more about building and shipping MCP apps at [nitrostack.ai](https://nitrostack.ai).
 
-See [`docs/architecture.md`](docs/architecture.md) for the full component
-breakdown and [`docs/threat-model.md`](docs/threat-model.md) for the
-security model.
+## Features
 
-## Getting started
+- 🔌 **MCP-native** — works with any MCP-compatible client (Claude, Cursor, and more)
+- 🛠️ **Tools, resources & prompts** — exposes structured capabilities to AI agents
+- ⚡ **Deployed on Nitrostack** — reliable, hosted, and instantly shareable
+- 🔐 **Secure by design** — secrets stay in environment variables, never in code
+- 🧩 **Composable** — combine with other MCP apps to build powerful AI workflows
+
+## Live Demo
+
+🚀 **Live MCP endpoint:** https://sentinelpay-ai-1-6a-fantastic-four-amrita-university-coimbatore.app.nitrocloud.ai
+
+Point your MCP client at the endpoint above to try it instantly. Prefer a hosted setup? Deploy your own in minutes on [Nitrostack](https://nitrostack.ai).
+
+## Getting Started
 
 ### Prerequisites
 
-- Node.js LTS (>=20)
-- npm or pnpm
-- Git
-- The official NitroStack CLI and TypeScript SDK
+- Node.js 18+ (or your project runtime)
+- An MCP-compatible client (Claude Desktop, Cursor, etc.)
+
+### Installation
 
 ```bash
-node --version
-npm --version
-git --version
-nitrostack --version
-```
-
-### Install
-
-```bash
+git clone https://github.com/your-username/your-mcp-project.git
+cd sentinelpay-ai-investigate-verify-explain-approve
 npm install
+```
+
+### Configuration
+
+Copy the example environment file and add your own values:
+
+```bash
 cp .env.example .env
-# then edit .env and set MCP_AUTH_TOKEN to a long random value
 ```
 
-### Run locally
+### Run
 
 ```bash
-npm run dev
+npm run start
 ```
 
-The server logs a `server.ready` line once fixture data has loaded
-successfully. If `.env` has no `MCP_AUTH_TOKEN`, the server intentionally
-fails closed rather than serving unauthenticated requests.
+## Connect to an MCP Client
 
-> **NitroStack wiring note:** this project deliberately keeps every tool,
-> resource, and prompt module framework-agnostic (plain descriptor objects,
-> no `@nitrostack/core` import). `src/index.ts` is the one place that needs
-> the exact SDK registration call, taken from your installed CLI's
-> scaffold/`--help` output rather than guessed — see the comment block at
-> the top of that file and Appendix B of
-> [`docs/technical-specification.md`](docs/technical-specification.md).
+Add this server to your MCP client configuration. A typical entry looks like:
 
-## Environment variables
-
-See [`.env.example`](.env.example) for the full, documented list. The most
-important ones:
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `MCP_AUTH_TOKEN` | unset (fails closed) | Bearer token required on every tool call |
-| `APPROVAL_THRESHOLD` | `500000` | INR amount above which human approval is required |
-| `BENEFICIARY_MISMATCH_WEIGHT` | `35` | Risk weight |
-| `AMOUNT_ANOMALY_WEIGHT` | `32` | Risk weight |
-| `POLICY_VIOLATION_WEIGHT` | `20` | Risk weight |
-| `RISK_SCORE_CAP` | `100` | Maximum risk score |
-
-## Project structure
-
-```
-sentinelpay-ai/
-├── src/
-│   ├── index.ts              # Entry point (NitroStack wiring goes here)
-│   ├── app.module.ts          # Collects every tool/resource/prompt descriptor
-│   ├── modules/                # MCP-facing tools, resources, prompts
-│   ├── domain/                 # Types, schemas, evidence logic, errors
-│   ├── services/                # Business logic (fixture repo, engines, audit)
-│   ├── widgets/                 # RiskCard, EvidenceTimeline, ApprovalCard (React)
-│   ├── security/                 # auth, authorization, input validation, prompt safety
-│   ├── observability/            # logger, metrics, tracing, audit events
-│   └── health/                    # liveness / readiness
-├── data/                            # Deterministic JSON fixtures (source of truth)
-├── tests/                            # unit / integration / e2e / security
-└── docs/                               # architecture, demo script, threat model
+```json
+{
+  "mcpServers": {
+    "sentinelpay-ai-investigate-verify-explain-approve": {
+      "url": "https://sentinelpay-ai-1-6a-fantastic-four-amrita-university-coimbatore.app.nitrocloud.ai"
+    }
+  }
+}
 ```
 
-## MCP surface
+Restart your client and the tools from this MCP server will be available to your AI assistant.
 
-**Tools** (exactly seven, read-only or compute-only — no `executePayment`
-exists anywhere in this codebase):
+## Deploy Your Own MCP App
 
-| Tool | Purpose |
-| --- | --- |
-| `getTransaction` | Retrieve a transaction by ID |
-| `verifyVendor` | Retrieve vendor identity + verified beneficiary account |
-| `analyzeInvoice` | Retrieve invoice evidence, including duplicate status |
-| `getPaymentHistory` | Retrieve computed payment-history statistics |
-| `evaluatePolicy` | Apply deterministic policy rules to collected evidence |
-| `calculateRisk` | Compute a reproducible prototype risk score (0–100) |
-| `prepareApproval` | Create a `WAITING_FOR_HUMAN_APPROVAL` review request |
+Want to build and ship an MCP server like this one? **[Nitrostack](https://nitrostack.ai)** lets you create, deploy, and host MCP apps in minutes — no infrastructure to manage.
 
-**Resources** (read-only contextual views):
+👉 **Start building:** [https://nitrostack.ai](https://nitrostack.ai)
 
+## Explore More MCP Apps
+
+- 🌙 Discover and share MCP projects with the community on [r/mcptothemoon](https://www.reddit.com/r/mcptothemoon/)
+- 🧰 Browse a growing catalog of MCP apps on [Nitrostack](https://nitrostack.ai/apps)
+
+## FAQ
+
+### What is an MCP server?
+
+An MCP server implements the Model Context Protocol to expose tools, resources, and prompts that AI assistants can call. It lets an AI model take real actions and access live data.
+
+### What does SentinelPay-AI: Investigate. Verify. Explain. Approve. do?
+
+SentinelPay AI is an intelligent payment investigation assistant built to help financial teams detect fraud, reduce risk, and make faster, more informed paym…
+
+### Which AI clients does this work with?
+
+Any MCP-compatible client, including Claude Desktop and Cursor. New clients are adding MCP support regularly.
+
+### How do I deploy my own MCP app?
+
+Use [Nitrostack](https://nitrostack.ai) to build, deploy, and host MCP apps without managing infrastructure.
+
+## Keywords
+
+`BFSI & FinTech` · `SentinelPay-AI: Investigate. Verify. Explain. Approve.` · `MCP` · `Model Context Protocol` · `MCP server` · `MCP app` · `AI tools` · `AI agents` · `LLM tools` · `Claude MCP` · `Nitrostack` · `deploy MCP server` · `build MCP app`
+
+# ⚙️ How SentinelPay Works
+
+SentinelPay AI is built as a deterministic investigation assistant for payment operations. Instead of relying on an LLM to make financial decisions, every conclusion is produced through a sequence of specialized MCP tools. Each tool performs one well-defined task, gathers structured evidence, and passes its results to the next stage of the workflow.
+
+This approach makes every investigation transparent, reproducible, and auditable. Rather than replacing human decision-makers, SentinelPay acts as an intelligent assistant that helps finance teams identify risks before payments are approved.
+
+At no point does SentinelPay execute payments or authorize financial transactions. Its role is limited to investigation, evidence collection, policy evaluation, and generating recommendations for human review.
+
+---
+
+# 🏗️ System Architecture
+
+```mermaid
+flowchart LR
+
+User --> ChatGPT
+
+ChatGPT --> MCP["SentinelPay MCP Server"]
+
+MCP --> T1["getTransaction"]
+MCP --> T2["verifyVendor"]
+MCP --> T3["analyzeInvoice"]
+MCP --> T4["getPaymentHistory"]
+MCP --> T5["evaluatePolicy"]
+MCP --> T6["calculateRisk"]
+MCP --> T7["prepareApproval"]
+
+T1 --> Resources
+T2 --> Resources
+T3 --> Resources
+T4 --> Resources
+T5 --> Resources
+
+Resources --> RiskEngine["Deterministic Risk Engine"]
+
+RiskEngine --> Report
+
+Report --> Human["Human Approver"]
 ```
-transaction://{transactionId}
-counterparty://{vendorId}
-invoice://{invoiceId}
-policy://{policyId}
-investigation://{caseId}
-audit://{caseId}
-history://{vendorId}        (additive)
-risk://{caseId}             (additive)
+
+---
+
+# 🔄 End-to-End Workflow
+
+Every investigation follows the exact same deterministic sequence to ensure consistency and explainability.
+
+```mermaid
+flowchart TD
+
+A[Incoming Payment Request]
+
+A --> B[getTransaction]
+
+B --> C[verifyVendor]
+
+C --> D[analyzeInvoice]
+
+D --> E[getPaymentHistory]
+
+E --> F[evaluatePolicy]
+
+F --> G[calculateRisk]
+
+G --> H[prepareApproval]
+
+H --> I[Human Decision]
 ```
 
-**Prompts:** `investigate_payment`, `explain_risk`.
+---
 
-## Testing
+# 🔍 Investigation Pipeline
 
-```bash
-npm test                 # everything
-npm run test:unit        # domain + service unit tests
-npm run test:integration
-npm run test:e2e         # full TX-827 pipeline regression test
-npm run test:security    # auth, authorization, prompt-injection defense
+Each MCP tool contributes one specific piece of evidence.
+
+| Step | MCP Tool | Purpose |
+|------|----------|----------|
+| 1 | getTransaction | Retrieve transaction metadata |
+| 2 | verifyVendor | Validate beneficiary information |
+| 3 | analyzeInvoice | Detect invoice inconsistencies |
+| 4 | getPaymentHistory | Retrieve historical payment behavior |
+| 5 | evaluatePolicy | Validate compliance policies |
+| 6 | calculateRisk | Combine evidence into a deterministic risk score |
+| 7 | prepareApproval | Generate an audit-ready approval package |
+
+---
+
+# 📊 Evidence Collection
+
+Instead of depending on a single AI response, SentinelPay aggregates information from multiple independent sources before calculating risk.
+
+```mermaid
+flowchart LR
+
+Transaction --> Evidence
+
+Vendor --> Evidence
+
+Invoice --> Evidence
+
+PaymentHistory --> Evidence
+
+Policy --> Evidence
+
+Evidence --> CrossValidation
+
+CrossValidation --> RiskScore
 ```
 
-The locked reference case is `TX-827`: risk score **87** (HIGH), historical
-average **₹173,200**, amount multiplier **≈4.86x**, beneficiary mismatch
-(`XXXX8291` vs `XXXX4412`), recommendation **HOLD**.
+Each evidence source remains independently verifiable, making every recommendation explainable and easy to audit.
 
-## Deployment
+---
 
-1. Confirm the server runs locally (`npm run dev`).
-2. Push to a stable `main` branch.
-3. Deploy to NitroStack Cloud using the current CLI's deploy command.
-4. Smoke-test the deployed MCP endpoint against `TX-827`.
-5. Repeat for each subsequent feature.
+# 🧠 Risk Assessment Pipeline
 
-Docker is optional for this MVP; a conceptual `Dockerfile` is:
+The deterministic risk engine combines multiple indicators into a single confidence score.
 
-```dockerfile
-FROM node:lts
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-CMD ["npm", "start"]
+```mermaid
+flowchart TD
+
+BeneficiaryMismatch --> Score
+
+InvoiceMismatch --> Score
+
+DuplicatePayment --> Score
+
+PolicyViolation --> Score
+
+AmountAnomaly --> Score
+
+Score --> Risk
+
+Risk --> Decision
 ```
 
-## Safety boundaries
+Typical risk indicators include:
 
-- No real-money transfer — there is no `executePayment` tool.
-- No autonomous approval — every case is created as
-  `WAITING_FOR_HUMAN_APPROVAL`.
-- No modification of vendor, invoice, or policy records by the agent.
-- Missing or conflicting evidence never becomes a silent positive
-  assumption — it is recorded and forces `HOLD`.
-- Invoice/document content is always treated as untrusted data, never as
-  instructions (see `src/security/prompt-safety.ts`).
-- The risk score is a labeled prototype heuristic, not a validated
-  probability of fraud, AML compliance, or legal certainty.
+- Beneficiary name mismatch
+- Duplicate invoice detection
+- Invoice inconsistencies
+- Policy violations
+- Unusual payment amounts
+- Suspicious historical payment patterns
 
-See [`docs/threat-model.md`](docs/threat-model.md) for the full model.
+The final score determines whether a transaction is recommended for approval or requires manual investigation.
+
+---
+
+# 📁 MCP Resource Architecture
+
+```mermaid
+flowchart LR
+
+TransactionResource
+
+VendorResource
+
+InvoiceResource
+
+HistoryResource
+
+PolicyResource
+
+RiskResource
+
+InvestigationResource
+
+AuditResource
+
+TransactionResource --> MCP
+
+VendorResource --> MCP
+
+InvoiceResource --> MCP
+
+HistoryResource --> MCP
+
+PolicyResource --> MCP
+
+RiskResource --> MCP
+
+InvestigationResource --> MCP
+
+AuditResource --> MCP
+```
+
+All resources are read-only and provide structured information to support the investigation process.
+
+---
+
+# 🤖 Tool Orchestration
+
+The MCP server coordinates multiple independent tools while keeping each one responsible for a single task.
+
+```mermaid
+flowchart LR
+
+User --> MCP
+
+MCP --> Tool1
+
+Tool1 --> Tool2
+
+Tool2 --> Tool3
+
+Tool3 --> Tool4
+
+Tool4 --> Tool5
+
+Tool5 --> Tool6
+
+Tool6 --> Tool7
+
+Tool7 --> Response
+```
+
+This modular architecture makes the platform easy to extend with additional investigation capabilities in the future.
+
+---
+
+# 🔒 Human Approval Boundary
+
+SentinelPay is intentionally designed so that AI assists rather than replaces financial decision-makers.
+
+```mermaid
+flowchart LR
+
+AIInvestigation["AI Investigation"]
+
+AIInvestigation --> RiskAssessment
+
+RiskAssessment --> Recommendation
+
+Recommendation --> HumanReviewer
+
+HumanReviewer --> FinalDecision
+```
+
+The AI performs evidence collection, policy validation, and risk assessment, while the final approval always remains with an authorized human reviewer.
+
+---
+
+# 🛡️ Security Principles
+
+SentinelPay follows a secure-by-design architecture.
+
+- Authentication protects sensitive MCP tools.
+- Read-only resources prevent accidental data modification.
+- Every investigation follows a deterministic workflow.
+- Audit reports capture all evidence used during analysis.
+- No autonomous payment execution.
+- Human approval is mandatory before any financial action.
+
+---
+
+# 🎯 Why MCP?
+
+Rather than embedding business logic directly into an LLM, SentinelPay uses the **Model Context Protocol (MCP)** to expose deterministic tools and structured resources.
+
+This architecture provides several advantages:
+
+- Standardized tool interfaces
+- Explainable execution
+- Deterministic workflows
+- Structured evidence retrieval
+- Easy integration with enterprise systems
+- Improved auditability
+- Modular and extensible design
+
+---
+
+# 🚀 Future Roadmap
+
+The current implementation demonstrates an end-to-end AI-assisted payment investigation workflow. Future enhancements may include:
+
+- SAP integration
+- Oracle ERP integration
+- Microsoft Dynamics support
+- Banking API connectivity
+- OCR-based invoice extraction
+- Real-time fraud detection
+- Knowledge graph analysis for vendor relationships
+- Adaptive machine learning risk scoring
+- Case management dashboard
+- Enterprise authentication (OAuth/SSO)
+- Multi-tenant deployment
+- Continuous compliance monitoring
+
+---
+
+# 📌 Key Design Principles
+
+- **Explainability First** – Every recommendation is backed by verifiable evidence.
+- **Deterministic Decisions** – Identical inputs always produce identical outputs.
+- **Human-in-the-Loop** – AI assists; humans make final decisions.
+- **Modular MCP Design** – Each tool has a single, clearly defined responsibility.
+- **Security by Default** – Authentication and auditability are built into the platform.
+- **Enterprise Ready** – Designed for integration with modern finance and ERP systems.
+
+## License
+
+MIT © 2026
+
+---
+
+Built with ❤️ using the Model Context Protocol on [Nitrostack](https://nitrostack.ai). Share your MCP app on [r/mcptothemoon](https://www.reddit.com/r/mcptothemoon/).
+
