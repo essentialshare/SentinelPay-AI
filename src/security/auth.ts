@@ -53,6 +53,27 @@ export function authenticate(authorizationHeader: string | undefined): AuthConte
     );
   }
 
+  // Local dev only, and only when explicitly opted in: no MCP client
+  // (including NitroStudio) sets `_meta.authorizationHeader` by default,
+  // and neither transport in "dual" mode currently forwards a real HTTP
+  // Authorization header into ExecutionContext (see index.ts gap #2).
+  // This is gated behind its own flag rather than inferred from NODE_ENV
+  // so that (a) a deployment that forgets to set NODE_ENV=production
+  // doesn't accidentally open this up, and (b) existing unit tests that
+  // call authenticate(undefined) without touching this flag keep failing
+  // closed exactly as before. Set MCP_AUTH_ALLOW_LOCAL_BYPASS=true in
+  // your local .env only — never in a deployed environment's config.
+  // This does NOT fix production: a real deployment still needs the SDK
+  // (or a custom HTTP middleware) to forward the incoming Authorization
+  // header into context.metadata, or to migrate to NitroStack's built-in
+  // ApiKeyModule/JWTModule instead of this shared-Bearer-token scheme.
+  if (!authorizationHeader && process.env.MCP_AUTH_ALLOW_LOCAL_BYPASS === "true") {
+    return {
+      principalId: "sentinelpay-agent-dev",
+      authenticatedAt: new Date().toISOString(),
+    };
+  }
+
   if (!authorizationHeader) {
     throw new UnauthorizedError("Missing Authorization header.");
   }

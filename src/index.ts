@@ -64,9 +64,22 @@
  * -----------------------------------------------------------------------
  */
 
+// `nitrostack-cli dev`/`studio`/`start` spawn this entry point with
+// `env: { ...process.env, NODE_ENV: ... }` (see @nitrostack/cli's
+// dev.js) — i.e. they forward whatever is already in the launching
+// shell's environment, but never read or parse this project's `.env`
+// file themselves. Without this line, every value in `.env`
+// (MCP_AUTH_TOKEN, MCP_AUTH_ALLOW_LOCAL_BYPASS, the risk weights, etc.)
+// is invisible to this process unless it happened to already be
+// exported in whatever shell/session launched Studio — which is why
+// this could appear to work sometimes and fail closed other times.
+// Must run before any other import touches `process.env`.
+import "dotenv/config";
+
 import {
   createServer,
   createResource,
+  createComponentFromNextRoute,
   Prompt,
   Tool,
   type ExecutionContext,
@@ -90,9 +103,12 @@ const { tools, resources, prompts } = appModule;
  * with a real, ready widget page are listed here. `EvidenceTimeline` is
  * deliberately absent: no tool currently returns an `Evidence[]` payload
  * (evidence is only exposed read-only via the `investigation://{caseId}`
- * resource), and `widget: { route }` only attaches to a *Tool* in this
- * SDK version — it still previews fine in Studio via widget-manifest.json
- * regardless of tool wiring.
+ * resource), and `widget: { route }` alone does NOT attach a Component to
+ * a manually-constructed `Tool` in this SDK version — see `toSdkTool`
+ * below, which now calls `tool.setComponent(...)` explicitly for exactly
+ * this reason. Standalone widget preview via widget-manifest.json is
+ * unaffected either way, since that path never goes through a real tool
+ * call at all.
  */
 const TOOL_WIDGETS: Record<string, { route: string; examples: { request: JsonValue; response: JsonValue } }> = {
   [CALCULATE_RISK_TOOL_NAME]: {
@@ -157,7 +173,7 @@ const server = createServer({
  */
 function toSdkTool(descriptor: (typeof tools)[number]): Tool {
   const widgetConfig = TOOL_WIDGETS[descriptor.name];
-  return new Tool({
+  const tool = new Tool({
     name: descriptor.name,
     description: descriptor.description,
     inputSchema: descriptor.inputSchema,
@@ -174,6 +190,22 @@ function toSdkTool(descriptor: (typeof tools)[number]): Tool {
       return descriptor.handler(input, toolCtx);
     },
   });
+
+  // `widget: { route }` above only tells the Tool which route *exists* —
+  // it does NOT attach a Component. The server only adds
+  // `response.structuredContent` (server.js: `if (tool.hasComponent())`)
+  // when a Component has actually been set via `tool.setComponent(...)`.
+  // The decorator-based `buildTool()` pipeline (builders.js) does this
+  // automatically via `createComponentFromNextRoute`; our manual `new
+  // Tool(...)` construction here has to do it explicitly, or every
+  // widget-backed tool's real response falls back to a JSON-stringified
+  // text block with no structuredContent — which is what was causing
+  // RiskCard's `factors` to be undefined on real (non-preview) tool calls.
+  if (widgetConfig) {
+    tool.setComponent(createComponentFromNextRoute(widgetConfig.route));
+  }
+
+  return tool;
 }
 
 /**
